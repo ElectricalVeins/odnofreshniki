@@ -8,10 +8,15 @@ const handleSubmit = (values) => {
 };
 
 const SignInForm = (props) => {
-console.log(props)
+
+  const emailValidate = (value) => {
+
+  };
+
   return (
     <Form>
-      <Field type='email' name='email' component={Input}/>
+      <Field validate={emailValidate} type='email' name='email'
+             component={Input}/>
       <Field type='password' name='password'/>
       <div onClick={props.submitForm}>Login</div>
     </Form>
@@ -20,6 +25,10 @@ console.log(props)
 };
 
 export default withFormik({
+                            mapPropsToValues: () => ({
+                              email: '',
+                              password: ''
+                            }),
                             initialValues: {
                               email: '',
                               password: '',

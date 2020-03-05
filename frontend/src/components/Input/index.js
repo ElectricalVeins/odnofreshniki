@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { Form, Formik, Field, withFormik } from 'formik';
+import styles from './Input.modules.scss';
+import classNames from 'classnames';
 
 function Input (props) {
-  console.log(props);
-  return <input style={{ border:'5px solid red'}} type="text"/>;
+  const { field, form,...rest } = props;
+  return <input {...field} {...rest}/>;
 }
 
 export default Input;
