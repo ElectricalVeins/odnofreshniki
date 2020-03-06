@@ -4,9 +4,9 @@ const { BadRequestError } = require('../utils/application_errors');
 const jwt = require('jsonwebtoken');
 const { TOKEN_KEY } = require('../constants');
 
-const util=require('util');
+const { promisify } = require('util');
 
-const signToken = Promise.promisify();
+const signToken = promisify(jwt.sign);
 
 class AuthenticationService {
 
@@ -46,9 +46,9 @@ class AuthenticationService {
       exp: Math.floor(Date.now() / 1000) + (60 * 10)
     };
 
-    return jwt.sign({
-                      ...payload,
-                    }, TOKEN_KEY);
+    return signToken({
+                       ...payload,
+                     }, TOKEN_KEY);
 
   }
 
@@ -57,10 +57,19 @@ class AuthenticationService {
       exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 30)
     };
 
-    const refreshTokenValue = jwt.sign({
-                                         ...payload,
-                                       }, TOKEN_KEY);
+    const refreshTokenValue = await signToken({
+                                                ...payload,
+                                              }, TOKEN_KEY);
 
+    const refreshToken = await RefreshToken.create({
+                                                     userId: user.id,
+                                                     refreshToken: refreshTokenValue,
+                                                   });
+
+    if (refreshToken) {
+      return refreshTokenValue;
+    }
+    throw new BadRequestError();
   }
 }
 
