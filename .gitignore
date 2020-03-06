@@ -2,3 +2,5 @@
 /frontend/README.md
 /frontend/package-lock.json
 /frontend/.directory
+**/node_modules/
+/package-lock.json
