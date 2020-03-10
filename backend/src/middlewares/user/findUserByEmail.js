@@ -1,20 +1,20 @@
 const { User } = require( '../../db/models' );
 
 module.exports = async (req, res, next) => {
-  try {
+	try {
 
-    const user = await User.findOne( {
-                                       where: {
-                                         email: req.body.email,
-                                       }
-                                     } );
-    if (user) {
-      req.user = user;
-      return next();
-    }
-    return res.status( 404 ).send( 'User not found' );
+		const user = await User.findOne( {
+			where: {
+				email: req.body.email,
+			}
+		} );
+		if (user) {
+			req.user = user;
+			return next();
+		}
+		return res.status( 404 ).send( 'User not found' );
 
-  } catch (e) {
-    next( e );
-  }
+	} catch (e) {
+		next( e );
+	}
 };

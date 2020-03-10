@@ -13,4 +13,4 @@ app.use('/api',router);
 //app.use(errorHandlers.sequelizeErrorHandler);
 
 app.listen(PORT,
-           () => console.log(`Server app started on port ${PORT}`));
+	() => console.log(`Server app started on port ${PORT}`));

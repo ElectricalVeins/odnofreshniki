@@ -5,8 +5,8 @@ const findUserByEmail = require( './findUserByEmail.js' );
 
 
 module.exports = {
-  checkAuthorization,
-  extractUserId,
-  comparePassword,
-  findUserByEmail,
+	checkAuthorization,
+	extractUserId,
+	comparePassword,
+	findUserByEmail,
 };

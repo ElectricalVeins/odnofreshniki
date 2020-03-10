@@ -10,67 +10,78 @@ const signToken = promisify(jwt.sign);
 
 class AuthenticationService {
 
-  async loginByEmail (credentials) {
-    const user = await User.findOne({
-                                      where: { email: credentials.email }
-                                    });
-    if (user) {
-      if (this.comparePasswords(credentials.password, user.password)) {
+	async loginByEmail (credentials) {
+		const user = await User.findOne({
+			where: { email: credentials.email }
+		});
+		if (user) {
+			if (this.comparePasswords(credentials.password, user.password)) {
 
-        const preparedUser = user.get();
-        delete preparedUser.password;
+				const preparedUser = user.get();
+				delete preparedUser.password;
 
-        const tokens = {
-          accessToken: this.genAccessToken(),
-          refreshToken: this.genRefreshToken()
-        };
+				const tokens = {
+					accessToken: await this.genAccessToken(user),
+					refreshToken: await this.genRefreshToken(user)
+				};
 
-        return {
-          tokenPair: tokens,
-          user: preparedUser
-        };
-      }
-    }
-    throw new BadRequestError('Who are you?');
-  }
+				return {
+					tokenPair: tokens,
+					user: preparedUser
+				};
+			}
+		}
+		throw new BadRequestError('Who are you?');
+	}
 
-  async comparePasswords (password, passwordHash) {
-    return bcrypt.compare(password, passwordHash);
-  }
+	async comparePasswords (password, passwordHash) {
+		return bcrypt.compare(password, passwordHash);
+	}
 
-  async genAccessToken (user) {
+	async genAccessToken (user) {
 
-    const payload = {
-      userId: user.id,
-      email: user.email,
-      exp: Math.floor(Date.now() / 1000) + (60 * 10)
-    };
+		const payload = {
+			userId: user.id,
+			email: user.email,
+		};
 
-    return signToken({
-                       ...payload,
-                     }, TOKEN_KEY);
+		return signToken({
+				...payload,
+			}, TOKEN_KEY,
+			{
+				expiresIn: Math.floor(Date.now() / 1000) + (60 * 10)
+			});
 
-  }
+	}
 
-  async genRefreshToken (user) {
-    const payload = {
-      exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 30)
-    };
+	async genRefreshToken (user) {
 
-    const refreshTokenValue = await signToken({
-                                                ...payload,
-                                              }, TOKEN_KEY);
+		const refreshToken = await signToken({}, TOKEN_KEY,
+			{
+				expiresIn: Math.floor(Date.now() / 1000) + (60 * 10)
+			});
 
-    const refreshToken = await RefreshToken.create({
-                                                     userId: user.id,
-                                                     refreshToken: refreshTokenValue,
-                                                   });
+		const tokens = await user.getRefreshTokens;
+		if (tokens.length > 5) {
 
-    if (refreshToken) {
-      return refreshTokenValue;
-    }
-    throw new BadRequestError();
-  }
+		}
+
+		await user.createRefreshToken({
+			refreshToken
+		});
+
+	}
+
+	refreshTokens=async(refreshToken)=>{
+
+	};
+
+	async genTokenPair (user) {
+		return {
+			accessToken: await this.genAccessToken(user),
+			refreshToken: await this.genRefreshToken(user)
+		};
+	}
 }
 
 export default new AuthenticationService();
